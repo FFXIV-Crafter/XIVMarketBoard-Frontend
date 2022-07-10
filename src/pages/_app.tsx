@@ -5,14 +5,20 @@ import type { AppType } from "next/dist/shared/lib/utils";
 import superjson from "superjson";
 import { SessionProvider } from "next-auth/react";
 import "../styles/globals.css";
+import { ReactElement, ReactNode } from "react";
+import { AppProps } from "next/app";
+import { NextPage } from "next";
+import Layout from "../components/Layout";
 
 const MyApp: AppType = ({
   Component,
-  pageProps: { session, ...pageProps },
+  pageProps: { session, ...pageProps }
 }) => {
   return (
     <SessionProvider session={session}>
-      <Component {...pageProps} />
+      <Layout>
+        <Component {...pageProps} />
+      </Layout>
     </SessionProvider>
   );
 };
@@ -37,7 +43,7 @@ export default withTRPC<AppRouter>({
 
     return {
       url,
-      transformer: superjson,
+      transformer: superjson
       /**
        * @link https://react-query.tanstack.com/reference/QueryClient
        */
@@ -47,5 +53,5 @@ export default withTRPC<AppRouter>({
   /**
    * @link https://trpc.io/docs/ssr
    */
-  ssr: false,
+  ssr: false
 })(MyApp);
