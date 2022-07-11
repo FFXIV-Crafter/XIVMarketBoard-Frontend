@@ -1,33 +1,20 @@
 import type { GetServerSideProps, NextPage } from "next";
 import ErrorPage from "next/error";
 import Head from "next/head";
+import { Item, ApiResponse, GetApiResults } from "../types/types";
 import { trpc } from "../utils/trpc";
-const apiUrl = "http://localhost:8000/all-item-names";
+const apiUrl = "https://api.jarvinen.se/items";
 
-type Data = {
-  message: string;
-  dict: { [key: string]: string };
-};
-
-const Home: NextPage<{ data: Data }> = (props) => {
+const Home: NextPage<{ items: Item[] }> = (props) => {
   let displayData;
-  console.log(props.data);
-  const items = props.data.dict;
+  console.log(props.items);
+  const items = props.items;
   // console.log(Object.values(items))
   console.log(items[2]);
-  console.log(Object.keys(items));
-  for (const i in Object.keys(items)) {
-    const value = items[i];
-    console.log(i + " 123: " + value);
-  }
+  console.log(items);
 
   displayData = () => {
     //return console.log(Object.keys(items))
-
-    for (const key in items) {
-      const value = items[key];
-      console.log(key + " : " + value);
-    }
     // return items.map(function (val, i) {
     //   return (
     //     <tr key={val.Id}>
@@ -58,6 +45,6 @@ export default Home;
 
 export async function getServerSideProps() {
   const res = await fetch(apiUrl);
-  const data = await res.json();
-  return { props: { data } };
+  const { items }: ApiResponse = await res.json();
+  return { props: { items } };
 }

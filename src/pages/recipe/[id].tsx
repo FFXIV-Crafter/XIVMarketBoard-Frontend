@@ -1,17 +1,18 @@
-import type { GetServerSideProps, NextPage } from "next";
-import Head from "next/head";
+import { GetServerSideProps, NextPage } from "next";
 import Link from "next/link";
-import { Recipe, GetApiResults, ApiResponse } from "../types/types";
-const apiUrl = "https://api.jarvinen.se/recipes";
-const ItemPage: NextPage<{ recipes: Recipe[] }> = ({ recipes }) => {
+import { useRouter } from "next/router";
+import { Recipe, GetApiResults, ApiResponse } from "../../types/types";
+
+const ItemPage: NextPage<{ Recipes: Recipe[] }> = ({ Recipes }) => {
+  const router = useRouter();
+  console.log(router.query.id);
+
   return (
     <div>
-      <Head>
-        <title>items</title>
-      </Head>
-      {recipes.map((Recipe) => {
+      {Recipes.map((Recipe) => {
         return (
           <div key={Recipe.id}>
+            <a>potato</a>
             <Link href={`/recipe/${Recipe.id}`}>
               <a>
                 <h3>{Recipe.name}</h3>
@@ -25,11 +26,13 @@ const ItemPage: NextPage<{ recipes: Recipe[] }> = ({ recipes }) => {
 };
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const res = await fetch(apiUrl);
+  const res = await fetch(
+    `https://api.jarvinen.se/recipe?recipeId=${context.query.id}`
+  );
   const { recipes }: ApiResponse = await res.json();
   return {
     props: {
-      recipes: recipes
+      Recipes: recipes
     }
   };
 };
