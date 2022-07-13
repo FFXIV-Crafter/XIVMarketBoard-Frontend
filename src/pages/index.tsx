@@ -1,50 +1,39 @@
 import type { GetServerSideProps, NextPage } from "next";
-import ErrorPage from "next/error";
-import Head from "next/head";
-import { Item, ApiResponse, GetApiResults } from "../types/types";
-import { trpc } from "../utils/trpc";
-const apiUrl = "https://api.jarvinen.se/items";
+import { Recipe, ApiResponse } from "../types/types";
+import Fuse from "fuse.js";
+import SearchBar from "../components/SearchBar";
+import ItemCards from "../components/ItemCards";
+import { useState } from "react";
+const apiUrl = "https://api.jarvinen.se/recipes";
 
-const Home: NextPage<{ items: Item[] }> = (props) => {
-  let displayData;
-  console.log(props.items);
-  const items = props.items;
-  // console.log(Object.values(items))
-  console.log(items[2]);
-  console.log(items);
-
-  displayData = () => {
-    //return console.log(Object.keys(items))
-    // return items.map(function (val, i) {
-    //   return (
-    //     <tr key={val.Id}>
-    //       <td>
-    //         {val.Id}
-    //       </td>
-    //       <td>
-    //         {val.Name}
-    //       </td>
-    //     </tr>
-    //   )
-    // })
+const SearchWithItemCards = ({ recipes }: { recipes: Recipe[] }) => {
+  const [query, setQuery] = useState("");
+  const options = {
+    keys: ["name", "id"]
   };
+  const fuse = new Fuse(recipes, options);
+  const results = fuse.search(query);
+  const recipeResult = query ? results.map((result) => result.item) : recipes;
+
   return (
-    <table className="ui inverted table">
-      <thead>
-        <tr>
-          <th>Id</th>
-          <th>Name</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+    <div className="w-3/6">
+      <SearchBar query={query} setQuery={setQuery} />
+      <ItemCards recipeResult={recipeResult} />
+    </div>
   );
+};
+const Home: NextPage<{ recipes: Recipe[] }> = (props) => {
+  let displayData;
+  console.log(props.recipes);
+  const recipes = props.recipes;
+  // console.log(Object.values(items))
+  return SearchWithItemCards({ recipes });
 };
 
 export default Home;
 
-export async function getServerSideProps() {
+export const getServerSideProps: GetServerSideProps = async () => {
   const res = await fetch(apiUrl);
-  const { items }: ApiResponse = await res.json();
-  return { props: { items } };
-}
+  const { recipes }: ApiResponse = await res.json();
+  return { props: { recipes } };
+};
